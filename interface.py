@@ -2,8 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 from simulate_trajectory import calculate_trajectory, create_plot
 import webbrowser
+from tkinter import messagebox
 
-class TrajectoryApp:
+class trajectory:
     def __init__(self, root):
         self.root = root
         self.root.title("Моделирование траектории снаряда")
@@ -33,8 +34,7 @@ class TrajectoryApp:
             entry.insert(0, default)
             self.entries[name] = entry
         
-        btn_calculate = ttk.Button(frame_params, 
-                                text="Рассчитать траекторию", 
+        btn_calculate = ttk.Button(frame_params, text="Рассчитать траекторию", 
                                 command=self.on_calculate)
         btn_calculate.grid(row=len(params), column=0, columnspan=2, pady=10)
     
@@ -60,10 +60,10 @@ class TrajectoryApp:
                 fig.write_html(html_file)
                 webbrowser.open(html_file)
                 
-        except Exception as e:
-            print(f"Ошибка ввода данных: {e}") # ЧТО-ТО ВЫВЕСТИ
+        except ValueError:
+            messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = TrajectoryApp(root)
+    app = trajectory(root)
     root.mainloop()
