@@ -3,12 +3,17 @@ import plotly.graph_objects as go
 from tkinter import messagebox
 
 def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
-                        mass, diameter, air_density, gravity):
+                        mass, diameter, air_density, gravity, dt_param):
 
     if theta < 0 or theta >= 90 or v0 <= 0 or v0 >= 3*10**8 or mass <= 0 or diameter <= 0 or air_density < 0 or gravity <= 0:
         messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
         return
-
+    if dt_param == 0:
+        pass
+    elif dt_param <= 0:
+        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
+        return
+    
     try:
         C_drag = 0.47
         S = np.pi * (diameter/2)**2
@@ -25,10 +30,13 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
         
         x, y, z = [0], [0], [0]
         t = 0
-        if v0 <= 10000:
-            dt = 1/v0
+        if dt_param == 0:
+            if 50 <= v0 <= 10000:
+                dt = round(1/v0, 5)
+            else:
+                dt = 1/10000
         else:
-            dt = 1/10000
+            dt = 1/dt_param
         
         while t < 30 and z[-1] >= 0:
             if x[-1] > 10**5 or y[-1] > 10**5 or z[-1] > 10**5:
@@ -94,10 +102,6 @@ def create_plot(x, y, z, params):
     )
     
     return fig
-
-
-
-
 
 
 
