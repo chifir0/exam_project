@@ -2,19 +2,24 @@ import numpy as np
 import plotly.graph_objects as go
 from tkinter import messagebox
 
+def check_data(theta, v0, mass, diameter, air_density, gravity, dt_param):
+    if theta < 0 or theta >= 90 or v0 <= 0 or v0 >= 3*10**8 or mass <= 0 or diameter <= 0 or air_density < 0 or gravity <= 0:
+        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
+        return 0
+    if dt_param == 0:
+        return 1
+    elif dt_param <= 0:
+        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
+        return 0
+
 def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
                         mass, diameter, air_density, gravity, dt_param):
 
-    if theta < 0 or theta >= 90 or v0 <= 0 or v0 >= 3*10**8 or mass <= 0 or diameter <= 0 or air_density < 0 or gravity <= 0:
-        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
-        return
-    if dt_param == 0:
-        pass
-    elif dt_param <= 0:
-        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
-        return
+    if not(check_data(theta, v0, mass, diameter, air_density, gravity, dt_param)):
+        return None, None, None
     
     try:
+        diameter *= 0.01
         C_drag = 0.47
         S = np.pi * (diameter/2)**2
         
@@ -28,7 +33,7 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
         wind_x = wind_speed * np.cos(wind_dir_rad)
         wind_y = wind_speed * np.sin(wind_dir_rad)
         
-        x, y, z = [0], [0], [0]
+        x, y, z = [0], [0], [diameter//2]
         t = 0
         if dt_param == 0:
             if 50 <= v0 <= 10000:
@@ -38,7 +43,7 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
         else:
             dt = 1/dt_param
         
-        while t < 30 and z[-1] >= 0:
+        while t < 30 and z[-1] >= diameter//2:
             if x[-1] > 10**5 or y[-1] > 10**5 or z[-1] > 10**5:
                 break
             v_rel_x = vx - wind_x
@@ -58,9 +63,9 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
             vy += ay * dt
             vz += az * dt
             
-            x.append(round((x[-1] + vx * dt), 5))
-            y.append(round((y[-1] + vy * dt), 5))
-            z.append(round((z[-1] + vz * dt), 5))
+            x.append(round((x[-1] + vx * dt), 7))
+            y.append(round((y[-1] + vy * dt), 7))
+            z.append(round((z[-1] + vz * dt), 7))
             t += dt
         
         return x, y, z
