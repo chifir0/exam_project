@@ -3,14 +3,10 @@ import plotly.graph_objects as go
 from tkinter import messagebox
 
 def check_data(theta, v0, mass, diameter, air_density, gravity, dt_param):
-    if theta < 0 or theta >= 90 or v0 <= 0 or v0 >= 3*10**8 or mass <= 0 or diameter <= 0 or air_density < 0 or gravity <= 0:
+    if theta < 0 or theta >= 90 or v0 <= 0 or v0 >= 3*10**8 or mass <= 0 or diameter <= 0 or air_density < 0 or gravity <= 0 or dt_param < 0:
         messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
         return 0
-    if dt_param == 0:
-        return 1
-    elif dt_param <= 0:
-        messagebox.showerror("Ошибка", "Проверьте правильность введенных данных")
-        return 0
+    return 1
 
 def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
                         mass, diameter, air_density, gravity, dt_param):
@@ -35,6 +31,7 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
         
         x, y, z = [0], [0], [diameter//2]
         t = 0
+
         if dt_param == 0:
             if 50 <= v0 <= 10000:
                 dt = round(1/v0, 5)
@@ -74,7 +71,7 @@ def calculate_trajectory(v0, theta, phi, wind_speed, wind_direction,
         messagebox.showerror("Ошибка", f"Произошла ошибка при рассчете траектории: {Exception}")
         return None, None, None
 
-def create_plot(x, y, z, params):
+def create_plot(x, y, z):
     if None in (x, y, z):
         return None
         
@@ -89,8 +86,8 @@ def create_plot(x, y, z, params):
     
     fig.add_trace(go.Surface(
         z=[[0, 0], [0, 0]],
-        x=[[min(x), max(x)], [min(x), max(x)]],
-        y=[[min(y), min(y)], [max(y), max(y)]],
+        x=[[min(x)-1, max(x)+1], [min(x)-1, max(x)+1]],
+        y=[[min(y)-1, min(y)-1], [max(y)+1, max(y)+1]],
         colorscale='Greens',
         opacity=0.5,
         showscale=False
@@ -103,10 +100,9 @@ def create_plot(x, y, z, params):
             zaxis_title='Z (м)',
             aspectmode='data'
         ),
-        title=f"Траектория снаряда (v₀={params['v0']} м/с, θ={params['theta']}°)\nМаксимальная высота H = {max(z)}"
+        title=f"Максимальная высота H = {max(z)} м Дальность полета = {round((max(x)**2 + max(y)**2)**0.5, 2)} м"
     )
     
     return fig
-
 
 
